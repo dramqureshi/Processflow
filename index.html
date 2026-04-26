@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProcessFlow Pro - Multi-User Workflow Manager</title>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-light: #6366F1;
+            --primary-bg: #EEF2FF;
+            --success: #10B981;
+            --success-bg: #ECFDF5;
+            --warning: #F59E0B;
+            --warning-bg: #FFFBEB;
+            --danger: #EF4444;
+            --danger-bg: #FEF2F2;
+            --info: #3B82F6;
+            --info-bg: #EFF6FF;
+            --gray-50: #F9FAFB;
+            --gray-100: #F3F4F6;
+            --gray-200: #E5E7EB;
+            --gray-300: #D1D5DB;
+            --gray-400: #9CA3AF;
+            --gray-500: #6B7280;
+            --gray-600: #4B5563;
+            --gray-700: #374151;
+            --gray-800: #1F2937;
+            --gray-900: #111827;
+            --white: #FFFFFF;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05);
+            --shadow-xl: 0 20px 25px rgba(0,0,0,0.1), 0 10px 10px rgba(0,0,0,0.04);
+            --transition: all 0.2s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-800);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Login */
+        .login-wrapper {
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%);
+            padding: 20px;
+        }
+        .login-box {
+            background: var(--white); border-radius: 24px; padding: 40px 36px;
+            width: 100%; max-width: 440px; box-shadow: var(--shadow-xl);
+            animation: fadeInUp 0.6s ease;
+        }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .login-logo {
+            width: 56px; height: 56px;
+            background: linear-gradient(135deg, #4F46E5, #7C3AED);
+            border-radius: 14px; display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 16px; font-size: 28px; color: white;
+        }
+        .login-box h1 { text-align: center; font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+        .login-box .subtitle { text-align: center; color: var(--gray-500); font-size: 13px; margin-bottom: 28px; }
+
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--gray-700); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%; padding: 12px 14px; border: 2px solid var(--gray-200);
+            border-radius: var(--radius-sm); font-size: 14px; color: var(--gray-800);
+            background: var(--white); transition: var(--transition); font-family: inherit; resize: vertical;
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+        }
+        .btn {
+            padding: 12px 20px; border: none; border-radius: var(--radius-sm);
+            font-size: 14px; font-weight: 600; cursor: pointer; transition: var(--transition);
+            display: inline-flex; align-items: center; gap: 8px; justify-content: center;
+        }
+        .btn-primary { background: var(--primary); color: white; width: 100%; }
+        .btn-primary:hover { background: var(--primary-light); box-shadow: var(--shadow-md); }
+        .btn-sm { padding: 6px 14px; font-size: 12px; width: auto; }
+        .btn-xs { padding: 4px 10px; font-size: 11px; width: auto; }
+        .btn-outline { background: transparent; border: 1px solid var(--gray-300); color: var(--gray-600); }
+        .btn-outline:hover { background: var(--gray-50); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #DC2626; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #059669; }
+        .btn-warning { background: var(--warning); color: white; }
+        .btn-info { background: var(--info); color: white; }
+
+        .login-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
+        .login-options .btn { font-size: 11px; padding: 10px 8px; }
+
+        /* App Layout */
+        .app-wrapper { display: none; min-height: 100vh; }
+        .app-header {
+            background: var(--gray-900); color: white; padding: 14px 28px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-lg);
+        }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header-left h2 { font-size: 18px; font-weight: 700; }
+        .header-right { display: flex; align-items: center; gap: 12px; }
+        .user-badge {
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.1); padding: 6px 14px; border-radius: 20px;
+            font-size: 13px;
+        }
+        .user-role { font-size: 10px; text-transform: uppercase; opacity: 0.7; letter-spacing: 1px; }
+        .notification-bell {
+            position: relative; cursor: pointer; font-size: 20px;
+        }
+        .notification-count {
+            position: absolute; top: -6px; right: -6px;
+            background: var(--danger); color: white; font-size: 10px; font-weight: 700;
+            width: 18px; height: 18px; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center;
+        }
+
+        .app-body { display: flex; min-height: calc(100vh - 60px); }
+        .sidebar {
+            width: 240px; background: var(--white); border-right: 1px solid var(--gray-200);
+            padding: 20px 0; position: sticky; top: 60px; height: calc(100vh - 60px);
+            overflow-y: auto;
+        }
+        .sidebar-menu { list-style: none; padding: 0; }
+        .sidebar-menu li { padding: 0; }
+        .sidebar-menu li a {
+            display: flex; align-items: center; gap: 10px; padding: 12px 24px;
+            color: var(--gray-600); text-decoration: none; font-size: 14px; font-weight: 500;
+            transition: var(--transition); border-left: 3px solid transparent;
+        }
+        .sidebar-menu li a:hover { background: var(--gray-50); color: var(--gray-800); }
+        .sidebar-menu li a.active { background: var(--primary-bg); color: var(--primary); border-left-color: var(--primary); font-weight: 600; }
+        .sidebar-section { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--gray-400); padding: 20px 24px 8px; font-weight: 600; }
+
+        .main-content { flex: 1; padding: 28px; overflow-y: auto; }
+
+        /* Stats */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .stat-card {
+            background: var(--white); padding: 20px; border-radius: var(--radius);
+            box-shadow: var(--shadow-sm); border: 1px solid var(--gray-100);
+        }
+        .stat-value { font-size: 26px; font-weight: 700; color: var(--gray-800); }
+        .stat-label { font-size: 12px; color: var(--gray-500); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-change { font-size: 11px; margin-top: 4px; }
+        .stat-change.up { color: var(--success); }
+        .stat-change.down { color: var(--danger); }
+
+        /* Cards */
+        .card {
+            background: var(--white); border-radius: var(--radius);
+            border: 1px solid var(--gray-100); box-shadow: var(--shadow-sm);
+            margin-bottom: 16px; overflow: hidden;
+        }
+        .card-header {
+            padding: 16px 20px; border-bottom: 1px solid var(--gray-100);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .card-header h3 { font-size: 15px; font-weight: 600; }
+        .card-body { padding: 20px; }
+        .card-footer { padding: 12px 20px; border-top: 1px solid var(--gray-100); background: var(--gray-50); }
+
+        /* Tables */
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { text-align: left; padding: 12px 16px; background: var(--gray-50); color: var(--gray-500); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 11px; border-bottom: 2px solid var(--gray-200); }
+        td { padding: 12px 16px; border-bottom: 1px solid var(--gray-100); }
+        tr:hover { background: var(--gray-50); }
+
+        /* Badges */
+        .badge {
+            padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.3px; display: inline-block;
+        }
+        .badge-pending { background: var(--warning-bg); color: #92400E; }
+        .badge-in-progress { background: var(--info-bg); color: #1E40AF; }
+        .badge-completed { background: var(--success-bg); color: #065F46; }
+        .badge-overdue { background: var(--danger-bg); color: #991B1B; }
+        .badge-approved { background: #F5F3FF; color: #5B21B6; }
+
+        /* Modal */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.6); z-index: 200;
+            justify-content: center; align-items: center; padding: 20px;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            background: var(--white); border-radius: 16px;
+            width: 100%; max-width: 650px; max-height: 85vh; overflow-y: auto;
+            box-shadow: var(--shadow-xl); animation: scaleIn 0.2s ease;
+        }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 24px; border-bottom: 1px solid var(--gray-200);
+            position: sticky; top: 0; background: var(--white); border-radius: 16px 16px 0 0;
+        }
+        .modal-header h3 { font-size: 17px; font-weight: 700; }
+        .btn-close {
+            width: 32px; height: 32px; border-radius: 50%; border: none;
+            background: var(--gray-100); cursor: pointer; font-size: 16px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .btn-close:hover { background: var(--gray-200); }
+        .modal-body { padding: 24px; }
+
+        /* Timeline */
+        .timeline { position: relative; padding-left: 30px; }
+        .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: var(--gray-200); }
+        .timeline-item { position: relative; margin-bottom: 20px; }
+        .timeline-dot {
+            position: absolute; left: -26px; top: 2px;
+            width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--primary);
+            background: var(--white);
+        }
+        .timeline-dot.completed { background: var(--success); border-color: var(--success); }
+        .timeline-dot.overdue { background: var(--danger); border-color: var(--danger); }
+        .timeline-content { font-size: 13px; }
+        .timeline-title { font-weight: 600; }
+        .timeline-date { font-size: 11px; color: var(--gray-400); }
+
+        /* Grid layouts */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+        /* Alerts */
+        .alert {
+            padding: 12px 16px; border-radius: var(--radius-sm); margin-bottom: 12px;
+            font-size: 13px; display: flex; align-items: center; gap: 8px;
+        }
+        .alert-info { background: var(--info-bg); color: #1E40AF; border-left: 4px solid var(--info); }
+        .alert-warning { background: var(--warning-bg); color: #92400E; border-left: 4px solid var(--warning); }
+        .alert-danger { background: var(--danger-bg); color: #991B1B; border-left: 4px solid var(--danger); }
+        .alert-success { background: var(--success-bg); color: #065F46; border-left: 4px solid var(--success); }
+
+        .text-muted { color: var(--gray-400); font-size: 12px; }
+        .text-danger { color: var(--danger); }
+        .text-success { color: var(--success); }
+        .mt-1 { margin-top: 8px; }
+        .mt-2 { margin-top: 16px; }
+        .mb-1 { margin-bottom: 8px; }
+        .mb-2 { margin-bottom: 16px; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .gap-1 { gap: 8px; }
+        .gap-2 { gap: 16px; }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .grid-3 { grid-template-columns: repeat(2, 1fr); }
+            .sidebar { width: 200px; }
+        }
+        @media (max-width: 768px) {
+            .app-body { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; position: relative; top: 0; border-right: none; border-bottom: 1px solid var(--gray-200); padding: 8px 0; }
+            .sidebar-menu { display: flex; flex-wrap: wrap; }
+            .sidebar-menu li a { padding: 8px 16px; font-size: 12px; border-left: none; border-bottom: 2px solid transparent; }
+            .sidebar-menu li a.active { border-left: none; border-bottom-color: var(--primary); }
+            .sidebar-section { display: none; }
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            .main-content { padding: 16px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .login-box { padding: 28px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== LOGIN PAGE ==================== -->
+    <div id="loginPage" class="login-wrapper">
+        <div class="login-box">
+            <div class="login-logo">🔄</div>
+            <h1>ProcessFlow Pro</h1>
+            <p class="subtitle">Multi-User Workflow Management</p>
+
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Sign In</button>
+            </form>
+
+            <div class="login-options">
+                <button class="btn btn-outline btn-sm" onclick="quickLogin('admin@processflow.com')">🔑 Super Admin</button>
+                <button class="btn btn-outline btn-sm" onclick="quickLogin('lawyer@processflow.com')">⚖️ Lawyer</button>
+                <button class="btn btn-outline btn-sm" onclick="quickLogin('employer@processflow.com')">🏢 Employer</button>
+                <button class="btn btn-outline btn-sm" onclick="quickLogin('consultant@processflow.com')">🎓 Consultant</button>
+            </div>
+            <p class="text-muted" style="text-align:center;margin-top:12px;">Click any role for demo access</p>
+        </div>
+    </div>
+
+    <!-- ==================== MAIN APP ==================== -->
+    <div id="appPage" class="app-wrapper">
+        <header class="app-header">
+            <div class="header-left">
+                <span style="font-size:22px;">🔄</span>
+                <h2>ProcessFlow Pro</h2>
+            </div>
+            <div class="header-right">
+                <div class="notification-bell" onclick="toggleNotifications()" title="Notifications">
+                    🔔<span class="notification-count" id="notifCount">3</span>
+                </div>
+                <div class="user-badge">
+                    <span id="currentUserName">User</span>
+                    <span class="user-role" id="currentUserRole">role</span>
+                </div>
+                <button class="btn btn-outline btn-sm" style="color:white;border-color:rgba(255,255,255,0.3);" onclick="logout()">Logout</button>
+            </div>
+        </header>
+
+        <div class="app-body">
+            <!-- Sidebar -->
+            <aside class="sidebar" id="sidebar">
+                <ul class="sidebar-menu" id="sidebarMenu"></ul>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content" id="mainContent"></main>
+        </div>
+    </div>
+
+    <!-- ==================== GLOBAL MODAL ==================== -->
+    <div id="globalModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="globalModalTitle">Modal</h3>
+                <button class="btn-close" onclick="closeGlobalModal()">✕</button>
+            </div>
+            <div class="modal-body" id="globalModalBody"></div>
+        </div>
+    </div>
+
+    <!-- ==================== NOTIFICATION PANEL ==================== -->
+    <div id="notifPanel" style="display:none;position:fixed;top:60px;right:20px;width:350px;max-height:400px;overflow-y:auto;background:white;border-radius:12px;box-shadow:var(--shadow-xl);z-index:300;padding:16px;">
+        <div class="flex-between mb-1">
+            <h4 style="font-size:14px;">🔔 Notifications</h4>
+            <button class="btn btn-xs btn-outline" onclick="markAllRead()">Mark all read</button>
+        </div>
+        <div id="notifList"></div>
+    </div>
+
+    <script>
+        // ==================== DATA STORE ====================
+        let currentUser = null;
+        let users = [];
+        let clients = [];
+        let processes = [];
+        let tasks = [];
+        let notifications = [];
+        let documents = [];
+        let currentPage = 'dashboard';
+
+        // ==================== USER ROLES ====================
+        const ROLES = {
+            super_admin: { name: 'Super Admin', permissions: ['all'], icon: '🔑', color: '#4F46E5' },
+            lawyer: { name: 'Lawyer', permissions: ['view_clients', 'view_tasks', 'update_tasks', 'upload_docs', 'view_docs'], icon: '⚖️', color: '#7C3AED' },
+            employer: { name: 'Employer', permissions: ['view_own_clients', 'view_own_tasks', 'upload_docs', 'view_docs'], icon: '🏢', color: '#0891B2' },
+            guide: { name: 'Guide', permissions: ['view_assigned_clients', 'view_tasks', 'update_tasks'], icon: '🧭', color: '#059669' },
+            visa_consultant: { name: 'Visa Consultant', permissions: ['view_clients', 'view_tasks', 'update_tasks', 'upload_docs'], icon: '🎓', color: '#EA580C' },
+            client: { name: 'Client', permissions: ['view_own_process', 'view_own_tasks', 'upload_docs'], icon: '👤', color: '#2563EB' },
+            paralegal: { name: 'Paralegal', permissions: ['view_clients', 'view_tasks', 'update_tasks', 'upload_docs'], icon: '📋', color: '#9333EA' },
+            coordinator: { name: 'Coordinator', permissions: ['view_clients', 'view_tasks', 'assign_tasks'], icon: '🔗', color: '#DB2777' }
+        };
+
+        function hasPermission(permission) {
+            if (!currentUser) return false;
+            if (currentUser.role === 'super_admin') return true;
+            const rolePerms = ROLES[currentUser.role]?.permissions || [];
+            return rolePerms.includes(permission) || rolePerms.includes('all');
+        }
+
+        // ==================== DEMO DATA ====================
+        function initDemoData() {
+            users = [
+                { id: 1, name: 'Admin User', email: 'admin@processflow.com', role: 'super_admin', password: 'admin123' },
+                { id: 2, name: 'James Wilson', email: 'lawyer@processflow.com', role: 'lawyer', password: 'lawyer123' },
+                { id: 3, name: 'TechCorp HR', email: 'employer@processflow.com', role: 'employer', password: 'employer123' },
+                { id: 4, name: 'Maria Guidez', email: 'guide@processflow.com', role: 'guide', password: 'guide123' },
+                { id: 5, name: 'VisaPro Consult', email: 'consultant@processflow.com', role: 'visa_consultant', password: 'consultant123' },
+                { id: 6, name: 'Sarah Smith', email: 'sarah@client.com', role: 'client', password: 'client123' },
+                { id: 7, name: 'Lisa Paralegal', email: 'paralegal@processflow.com', role: 'paralegal', password: 'paralegal123' },
+                { id: 8, name: 'Alex Coordinator', email: 'coordinator@processflow.com', role: 'coordinator', password: 'coordinator123' },
+            ];
+
+            clients = [
+                { id: 1, name: 'Sarah Smith', email: 'sarah@email.com', phone: '+1 555-0101', status: 'active', assignedTo: [1,2,5], createdAt: '2024-01-10' },
+                { id: 2, name: 'Mike Johnson', email: 'mike@email.com', phone: '+44 7700 900', status: 'active', assignedTo: [1,3,4], createdAt: '2024-02-01' },
+                { id: 3, name: 'Emily Chen', email: 'emily@email.com', phone: '+1 555-0103', status: 'active', assignedTo: [1,2,7], createdAt: '2024-03-10' },
+                { id: 4, name: 'Rajesh Sharma', email: 'rajesh@email.com', phone: '+977 98000001', status: 'active', assignedTo: [1,5], createdAt: '2024-03-05' },
+            ];
+
+            processes = [
+                { id: 1, clientId: 1, name: 'US Student Visa (F-1)', description: 'F-1 student visa process', status: 'in-progress', createdAt: '2024-01-15', deadline: '2024-06-30', steps: [
+                    { name: 'Receive I-20', completed: true, deadline: '2024-01-25', completedBy: 2, completedAt: '2024-01-20' },
+                    { name: 'Pay SEVIS fee', completed: true, deadline: '2024-02-01', completedBy: 1, completedAt: '2024-01-22' },
+                    { name: 'Complete DS-160', completed: true, deadline: '2024-02-15', completedBy: 5, completedAt: '2024-02-10' },
+                    { name: 'Submit documents to employer', completed: false, deadline: '2024-03-01', assignedTo: 3, responseTime: '48 hours' },
+                    { name: 'Schedule biometrics', completed: false, deadline: '2024-03-20', assignedTo: 2 },
+                    { name: 'Attend interview', completed: false, deadline: '2024-04-15', assignedTo: 1 },
+                ]},
+                { id: 2, clientId: 2, name: 'UK Skilled Worker Visa', description: 'Tier 2 work visa', status: 'in-progress', createdAt: '2024-02-01', deadline: '2024-08-01', steps: [
+                    { name: 'Get CoS from employer', completed: true, deadline: '2024-02-15', completedBy: 3, completedAt: '2024-02-10' },
+                    { name: 'Prepare documents', completed: true, deadline: '2024-02-28', completedBy: 4, completedAt: '2024-02-25' },
+                    { name: 'Submit online application', completed: false, deadline: '2024-03-15', assignedTo: 7 },
+                    { name: 'Pay healthcare surcharge', completed: false, deadline: '2024-03-20', assignedTo: 1 },
+                ]},
+                { id: 3, clientId: 3, name: 'Canada Express Entry PR', description: 'PR application', status: 'in-progress', createdAt: '2024-03-10', deadline: '2024-09-01', steps: [
+                    { name: 'Create EE profile', completed: true, deadline: '2024-03-20', completedBy: 5, completedAt: '2024-03-15' },
+                    { name: 'Medical exam', completed: false, deadline: '2024-04-10', assignedTo: 1 },
+                    { name: 'Police clearance', completed: false, deadline: '2024-04-25', assignedTo: 2 },
+                ]},
+                { id: 4, clientId: 4, name: 'Business Registration', description: 'Company registration', status: 'in-progress', createdAt: '2024-03-01', deadline: '2024-05-15', steps: [
+                    { name: 'Name reservation', completed: true, deadline: '2024-03-10', completedBy: 5, completedAt: '2024-03-08' },
+                    { name: 'Submit documents', completed: false, deadline: '2024-03-25', assignedTo: 7 },
+                    { name: 'PAN registration', completed: false, deadline: '2024-04-05', assignedTo: 1 },
+                ]},
+            ];
+
+            tasks = [
+                { id: 1, processId: 1, title: 'Submit employment verification letter', description: 'Employer must provide verification letter with company letterhead', assignedTo: 3, assignedBy: 1, status: 'pending', deadline: '2024-03-05', responseTimeHours: 48, createdAt: '2024-03-01', priority: 'high' },
+                { id: 2, processId: 1, title: 'Review DS-160 form', description: 'Lawyer needs to review the completed DS-160 before submission', assignedTo: 2, assignedBy: 1, status: 'in-progress', deadline: '2024-03-10', responseTimeHours: 72, createdAt: '2024-02-28', priority: 'medium' },
+                { id: 3, processId: 2, title: 'Provide bank statements', description: 'Client needs to submit 6 months bank statements', assignedTo: 6, assignedBy: 1, status: 'pending', deadline: '2024-03-12', responseTimeHours: 24, createdAt: '2024-03-05', priority: 'high' },
+                { id: 4, processId: 3, title: 'Schedule medical appointment', description: 'Guide needs to book medical exam for client', assignedTo: 4, assignedBy: 1, status: 'pending', deadline: '2024-03-18', responseTimeHours: 48, createdAt: '2024-03-08', priority: 'medium' },
+                { id: 5, processId: 1, title: 'Upload passport copy', description: 'Client needs to upload clear passport scan', assignedTo: 6, assignedBy: 2, status: 'completed', deadline: '2024-02-20', responseTimeHours: 24, createdAt: '2024-02-15', priority: 'high', completedAt: '2024-02-18' },
+            ];
+
+            notifications = [
+                { id: 1, userId: 1, message: '📄 Employer submitted verification letter for Sarah Smith', read: false, createdAt: '2024-03-02T10:30:00', type: 'document' },
+                { id: 2, userId: 1, message: '⚠️ Task "Provide bank statements" is overdue for Mike Johnson', read: false, createdAt: '2024-03-06T08:00:00', type: 'overdue' },
+                { id: 3, userId: 1, message: '✅ Lawyer completed DS-160 review for Sarah Smith', read: false, createdAt: '2024-03-01T14:00:00', type: 'completed' },
+                { id: 4, userId: 2, message: '📋 New task assigned: Review DS-160 form for Sarah Smith', read: true, createdAt: '2024-02-28T09:00:00', type: 'task' },
+                { id: 5, userId: 3, message: '⏰ Response required: Submit employment letter within 48 hours', read: false, createdAt: '2024-03-01T11:00:00', type: 'deadline' },
+            ];
+
+            documents = [
+                { id: 1, processId: 1, name: 'Employment_Verification_Letter.pdf', uploadedBy: 3, uploadedAt: '2024-03-02', status: 'pending_review', size: '245 KB' },
+                { id: 2, processId: 1, name: 'Passport_Scan_Sarah.pdf', uploadedBy: 6, uploadedAt: '2024-02-18', status: 'approved', size: '1.2 MB' },
+                { id: 3, processId: 2, name: 'Bank_Statements_Mike.pdf', uploadedBy: 6, uploadedAt: '2024-03-01', status: 'pending_review', size: '890 KB' },
+            ];
+        }
+
+        // ==================== LOGIN ====================
+        function quickLogin(email) {
+            document.getElementById('loginEmail').value = email;
+            document.getElementById('loginPassword').value = 'password';
+            handleLogin(new Event('submit'));
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+            const password = document.getElementById('loginPassword').value.trim();
+            if (users.length === 0) initDemoData();
+            let user = users.find(u => u.email === email);
+            if (!user) {
+                user = { id: Date.now(), name: email.split('@')[0].replace(/[._]/g, ' '), email, role: 'client', password: 'password' };
+                users.push(user);
+            }
+            currentUser = user;
+            showApp();
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('appPage').style.display = 'none';
+        }
+
+        function showApp() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('appPage').style.display = 'block';
+            document.getElementById('currentUserName').textContent = currentUser.name;
+            document.getElementById('currentUserRole').textContent = ROLES[currentUser.role]?.name || 'User';
+            updateNotificationCount();
+            renderSidebar();
+            navigateTo('dashboard');
+        }
+
+        // ==================== SIDEBAR ====================
+        function renderSidebar() {
+            const menu = document.getElementById('sidebarMenu');
+            let items = [];
+            if (hasPermission('all') || currentUser.role === 'super_admin') {
+                items = [
+                    { section: 'MAIN', links: [
+                        { page: 'dashboard', label: '📊 Dashboard', icon: '' },
+                        { page: 'clients', label: '👥 Clients', icon: '' },
+                        { page: 'processes', label: '📋 Processes', icon: '' },
+                        { page: 'tasks', label: '✅ Tasks', icon: '' },
+                    ]},
+                    { section: 'MANAGEMENT', links: [
+                        { page: 'users', label: '👤 Users & Roles', icon: '' },
+                        { page: 'documents', label: '📄 Documents', icon: '' },
+                        { page: 'notifications', label: '🔔 Notifications', icon: '' },
+                        { page: 'reports', label: '📈 Reports', icon: '' },
+                    ]},
+                ];
+            } else if (currentUser.role === 'lawyer') {
+                items = [
+                    { section: 'MAIN', links: [
+                        { page: 'dashboard', label: '📊 Dashboard', icon: '' },
+                        { page: 'clients', label: '👥 My Clients', icon: '' },
+                        { page: 'tasks', label: '✅ My Tasks', icon: '' },
+                        { page: 'documents', label: '📄 Documents', icon: '' },
+                    ]},
+                ];
+            } else if (currentUser.role === 'employer') {
+                items = [
+                    { section: 'MAIN', links: [
+                        { page: 'dashboard', label: '📊 Dashboard', icon: '' },
+                        { page: 'tasks', label: '✅ My Tasks', icon: '' },
+                        { page: 'documents', label: '📄 Upload Documents', icon: '' },
+                    ]},
+                ];
+            } else if (currentUser.role === 'visa_consultant' || currentUser.role === 'guide' || currentUser.role === 'paralegal' || currentUser.role === 'coordinator') {
+                items = [
+                    { section: 'MAIN', links: [
+                        { page: 'dashboard', label: '📊 Dashboard', icon: '' },
+                        { page: 'clients', label: '👥 Clients', icon: '' },
+                        { page: 'tasks', label: '✅ My Tasks', icon: '' },
+                        { page: 'documents', label: '📄 Documents', icon: '' },
+                    ]},
+                ];
+            } else {
+                items = [
+                    { section: 'MAIN', links: [
+                        { page: 'dashboard', label: '📊 My Dashboard', icon: '' },
+                        { page: 'tasks', label: '✅ My Tasks', icon: '' },
+                        { page: 'documents', label: '📄 My Documents', icon: '' },
+                    ]},
+                ];
+            }
+            menu.innerHTML = items.map(section => `
+                <li class="sidebar-section">${section.section}</li>
+                ${section.links.map(link => `
+                    <li><a href="#" onclick="navigateTo('${link.page}')" class="${currentPage === link.page ? 'active' : ''}">${link.label}</a></li>
+                `).join('')}
+            `).join('');
+        }
+
+        // ==================== NAVIGATION ====================
+        function navigateTo(page) {
+            currentPage = page;
+            renderSidebar();
+            const content = document.getElementById('mainContent');
+            switch(page) {
+                case 'dashboard': renderDashboard(content); break;
+                case 'clients': renderClientsPage(content); break;
+                case 'processes': renderProcessesPage(content); break;
+                case 'tasks': renderTasksPage(content); break;
+                case 'users': renderUsersPage(content); break;
+                case 'documents': renderDocumentsPage(content); break;
+                case 'notifications': renderNotificationsPage(content); break;
+                case 'reports': renderReportsPage(content); break;
+                default: renderDashboard(content);
+            }
+        }
+
+        // ==================== DASHBOARD ====================
+        function renderDashboard(container) {
+            const myTasks = tasks.filter(t => t.assignedTo === currentUser.id);
+            const pendingTasks = myTasks.filter(t => t.status === 'pending').length;
+            const overdueTasks = myTasks.filter(t => t.deadline && new Date(t.deadline) < new Date() && t.status !== 'completed').length;
+            const myClients = hasPermission('all') ? clients : clients.filter(c => c.assignedTo.includes(currentUser.id));
+            const activeProcesses = hasPermission('all') ? processes.filter(p => p.status === 'in-progress') : processes.filter(p => p.status === 'in-progress' && clients.find(c => c.id === p.clientId && c.assignedTo.includes(currentUser.id)));
+            container.innerHTML = `
+                <h2 style="margin-bottom:20px;">📊 Dashboard</h2>
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-value">${myClients.length}</div><div class="stat-label">My Clients</div></div>
+                    <div class="stat-card"><div class="stat-value">${myTasks.length}</div><div class="stat-label">My Tasks</div><div class="stat-change ${pendingTasks > 3 ? 'down' : 'up'}">${pendingTasks} pending</div></div>
+                    <div class="stat-card"><div class="stat-value">${activeProcesses.length}</div><div class="stat-label">Active Processes</div></div>
+                    <div class="stat-card"><div class="stat-value">${overdueTasks}</div><div class="stat-label" style="color:${overdueTasks>0?'var(--danger)':''}">⚠️ Overdue</div></div>
+                    <div class="stat-card"><div class="stat-value">${documents.filter(d => d.status === 'pending_review').length}</div><div class="stat-label">Docs Pending Review</div></div>
+                </div>
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header"><h3>⏰ My Pending Tasks</h3></div>
+                        <div class="card-body">
+                            ${myTasks.filter(t => t.status !== 'completed').slice(0,5).map(t => {
+                                const overdue = t.deadline && new Date(t.deadline) < new Date();
+                                return `<div style="padding:8px 0;border-bottom:1px solid var(--gray-100);${overdue?'background:#FFF5F5;padding:8px;border-radius:6px;':''}">
+                                    <strong>${t.title}</strong>
+                                    <span class="badge ${overdue?'badge-overdue':'badge-pending'}" style="float:right;">${overdue?'OVERDUE':t.status}</span>
+                                    <div class="text-muted">Deadline: ${t.deadline || 'N/A'} | Response: ${t.responseTimeHours}h</div>
+                                </div>`;
+                            }).join('') || '<p class="text-muted">No pending tasks</p>'}
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><h3>🔔 Recent Notifications</h3></div>
+                        <div class="card-body">
+                            ${notifications.filter(n => n.userId === currentUser.id).slice(0,5).map(n => `
+                                <div style="padding:8px 0;border-bottom:1px solid var(--gray-100);${!n.read?'font-weight:600;':''}">${n.message} <span class="text-muted">${timeAgo(n.createdAt)}</span></div>
+                            `).join('') || '<p class="text-muted">No notifications</p>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ==================== CLIENTS PAGE ====================
+        function renderClientsPage(container) {
+            if (!hasPermission('view_clients') && !hasPermission('all')) {
+                container.innerHTML = '<div class="alert alert-danger">⛔ Access Denied</div>'; return;
+            }
+            const myClients = hasPermission('all') ? clients : clients.filter(c => c.assignedTo.includes(currentUser.id));
+            container.innerHTML = `
+                <div class="flex-between mb-2">
+                    <h2>👥 ${hasPermission('all')?'All Clients':'My Clients'}</h2>
+                    ${hasPermission('all') ? '<button class="btn btn-primary btn-sm" onclick="openAddClientModal()">+ Add Client</button>' : ''}
+                </div>
+                <div class="card"><div class="table-wrapper"><table>
+                    <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Processes</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody>${myClients.map(c => {
+                        const clientProcesses = processes.filter(p => p.clientId === c.id);
+                        return `<tr>
+                            <td><strong>${c.name}</strong></td>
+                            <td>${c.email}</td><td>${c.phone}</td>
+                            <td>${clientProcesses.length}</td>
+                            <td><span class="badge badge-${c.status==='active'?'completed':'pending'}">${c.status}</span></td>
+                            <td>
+                                <button class="btn btn-outline btn-xs" onclick="viewClientDetail(${c.id})">👁️ View</button>
+                                ${hasPermission('all')?`<button class="btn btn-outline btn-xs" onclick="assignUsersToClient(${c.id})">🔗 Assign</button>`:''}
+                            </td>
+                        </tr>`;
+                    }).join('')}</tbody>
+                </table></div></div>
+            `;
+        }
+
+        // ==================== PROCESSES PAGE ====================
+        function renderProcessesPage(container) {
+            if (!hasPermission('view_clients') && !hasPermission('all') && currentUser.role !== 'client') {
+                container.innerHTML = '<div class="alert alert-danger">⛔ Access Denied</div>'; return;
+            }
+            const visibleProcesses = hasPermission('all') ? processes : processes.filter(p => {
+                const client = clients.find(c => c.id === p.clientId);
+                return client && client.assignedTo.includes(currentUser.id);
+            });
+            container.innerHTML = `
+                <div class="flex-between mb-2">
+                    <h2>📋 Processes</h2>
+                    ${hasPermission('all') ? '<button class="btn btn-primary btn-sm" onclick="openAddProcessModal()">+ New Process</button>' : ''}
+                </div>
+                <div class="process-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:16px;">
+                    ${visibleProcesses.map(p => {
+                        const client = clients.find(c => c.id === p.clientId);
+                        const done = p.steps.filter(s => s.completed).length;
+                        const progress = Math.round((done / p.steps.length) * 100);
+                        return `<div class="card" style="cursor:pointer;" onclick="viewProcessDetail(${p.id})">
+                            <div class="card-header"><h3>${p.name}</h3><span class="badge badge-${p.status==='completed'?'completed':'in-progress'}">${p.status}</span></div>
+                            <div class="card-body">
+                                <p class="text-muted">👤 ${client?client.name:'Unknown'} | 📅 Deadline: ${p.deadline}</p>
+                                <div style="margin-top:8px;"><div style="display:flex;justify-content:space-between;font-size:12px;"><span>Progress</span><span>${progress}%</span></div>
+                                <div style="width:100%;height:6px;background:var(--gray-200);border-radius:10px;margin-top:4px;"><div style="width:${progress}%;height:100%;background:var(--primary);border-radius:10px;"></div></div></div>
+                                <div style="margin-top:12px;font-size:12px;">${p.steps.filter(s=>!s.completed).slice(0,2).map(s=>`⏳ ${s.name} <span class="text-muted">(${s.deadline||'No deadline'})</span>`).join('<br>')}</div>
+                            </div>
+                        </div>`;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        // ==================== TASKS PAGE ====================
+        function renderTasksPage(container) {
+            const myTasks = hasPermission('all') ? tasks : tasks.filter(t => t.assignedTo === currentUser.id);
+            container.innerHTML = `
+                <div class="flex-between mb-2">
+                    <h2>✅ Tasks</h2>
+                    ${hasPermission('all') ? '<button class="btn btn-primary btn-sm" onclick="openCreateTaskModal()">+ Create Task</button>' : ''}
+                </div>
+                <div class="card"><div class="table-wrapper"><table>
+                    <thead><tr><th>Task</th><th>Process</th><th>Assigned To</th><th>Deadline</th><th>Response Time</th><th>Priority</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody>${myTasks.map(t => {
+                        const process = processes.find(p => p.id === t.processId);
+                        const assignedUser = users.find(u => u.id === t.assignedTo);
+                        const overdue = t.deadline && new Date(t.deadline) < new Date() && t.status !== 'completed';
+                        return `<tr style="${overdue?'background:#FFF5F5;':''}">
+                            <td><strong>${t.title}</strong></td>
+                            <td>${process?process.name:'N/A'}</td>
+                            <td>${assignedUser?assignedUser.name:'Unknown'} <span class="badge badge-pending" style="font-size:10px;">${assignedUser?ROLES[assignedUser.role]?.name:'N/A'}</span></td>
+                            <td>${t.deadline||'N/A'} ${overdue?'🔴':''}</td>
+                            <td><strong>${t.responseTimeHours}h</strong></td>
+                            <td><span class="badge badge-${t.priority==='high'?'overdue':t.priority==='medium'?'in-progress':'pending'}">${t.priority}</span></td>
+                            <td><span class="badge badge-${t.status==='completed'?'completed':t.status==='in-progress'?'in-progress':'pending'}">${t.status}</span></td>
+                            <td>
+                                ${(t.assignedTo === currentUser.id || hasPermission('all')) ? `<button class="btn btn-xs btn-success" onclick="updateTaskStatus(${t.id},'completed')">✓</button>` : ''}
+                                ${hasPermission('all') ? `<button class="btn btn-xs btn-outline" onclick="editTask(${t.id})">✏️</button>` : ''}
+                            </td>
+                        </tr>`;
+                    }).join('')}</tbody>
+                </table></div></div>
+            `;
+        }
+
+        // ==================== USERS PAGE (Super Admin) ====================
+        function renderUsersPage(container) {
+            if (!hasPermission('all')) { container.innerHTML = '<div class="alert alert-danger">⛔ Access Denied - Super Admin Only</div>'; return; }
+            container.innerHTML = `
+                <div class="flex-between mb-2"><h2>👤 Users & Roles</h2><button class="btn btn-primary btn-sm" onclick="openAddUserModal()">+ Add User</button></div>
+                <div class="card"><div class="table-wrapper"><table>
+                    <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Permissions</th><th>Actions</th></tr></thead>
+                    <tbody>${users.map(u => `<tr>
+                        <td><strong>${u.name}</strong></td><td>${u.email}</td>
+                        <td><span class="badge badge-in-progress">${ROLES[u.role]?.icon} ${ROLES[u.role]?.name||u.role}</span></td>
+                        <td style="font-size:11px;color:var(--gray-500);">${(ROLES[u.role]?.permissions||[]).slice(0,3).join(', ')}...</td>
+                        <td><button class="btn btn-outline btn-xs" onclick="editUserRole(${u.id})">🔧 Change Role</button></td>
+                    </tr>`).join('')}</tbody>
+                </table></div></div>
+                <div class="card mt-2"><div class="card-header"><h3>Available Roles</h3></div>
+                <div class="card-body"><div class="grid-3">${Object.entries(ROLES).map(([key,role]) => `
+                    <div style="padding:12px;border:1px solid var(--gray-200);border-radius:8px;">
+                        <strong>${role.icon} ${role.name}</strong>
+                        <div style="font-size:11px;color:var(--gray-500);margin-top:4px;">${role.permissions.join(', ')}</div>
+                    </div>`).join('')}</div></div></div>
+            `;
+        }
+
+        // ==================== DOCUMENTS PAGE ====================
+        function renderDocumentsPage(container) {
+            const visibleDocs = hasPermission('all') ? documents : documents.filter(d => {
+                const process = processes.find(p => p.id === d.processId);
+                const client = clients.find(c => c.id === process?.clientId);
+                return client && (client.assignedTo.includes(currentUser.id) || d.uploadedBy === currentUser.id);
+            });
+            container.innerHTML = `
+                <div class="flex-between mb-2"><h2>📄 Documents</h2>
+                    ${!hasPermission('all') ? '<button class="btn btn-primary btn-sm" onclick="openUploadDocModal()">📤 Upload Document</button>' : ''}
+                </div>
+                <div class="card"><div class="table-wrapper"><table>
+                    <thead><tr><th>Document</th><th>Process</th><th>Uploaded By</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody>${visibleDocs.map(d => {
+                        const process = processes.find(p => p.id === d.processId);
+                        const uploader = users.find(u => u.id === d.uploadedBy);
+                        return `<tr>
+                            <td>📎 ${d.name}</td><td>${process?process.name:'N/A'}</td>
+                            <td>${uploader?uploader.name:'Unknown'}</td><td>${d.uploadedAt}</td>
+                            <td><span class="badge badge-${d.status==='approved'?'completed':d.status==='pending_review'?'in-progress':'pending'}">${d.status}</span></td>
+                            <td>
+                                ${hasPermission('all') || currentUser.role === 'lawyer' ? `
+                                    <button class="btn btn-xs btn-success" onclick="approveDocument(${d.id})">✓ Approve</button>
+                                    <button class="btn btn-xs btn-outline" onclick="rejectDocument(${d.id})">✕ Reject</button>
+                                ` : '<span class="text-muted">Pending Review</span>'}
+                            </td>
+                        </tr>`;
+                    }).join('')}</tbody>
+                </table></div></div>
+            `;
+        }
+
+        // ==================== NOTIFICATIONS PAGE ====================
+        function renderNotificationsPage(container) {
+            const myNotifs = notifications.filter(n => n.userId === currentUser.id);
+            container.innerHTML = `
+                <h2 class="mb-2">🔔 Notifications</h2>
+                <div class="card"><div class="card-body">
+                    ${myNotifs.length === 0 ? '<p class="text-muted">No notifications</p>' :
+                    myNotifs.map(n => `<div style="padding:12px;border-bottom:1px solid var(--gray-100);${!n.read?'background:var(--primary-bg);font-weight:600;':''}" onclick="markNotifRead(${n.id})">
+                        ${n.message} <span class="text-muted" style="float:right;">${timeAgo(n.createdAt)}</span>
+                    </div>`).join('')}
+                </div></div>
+            `;
+        }
+
+        // ==================== REPORTS PAGE ====================
+        function renderReportsPage(container) {
+            if (!hasPermission('all')) { container.innerHTML = '<div class="alert alert-danger">⛔ Access Denied</div>'; return; }
+            const totalTasks = tasks.length;
+            const completedTasks = tasks.filter(t => t.status === 'completed').length;
+            const overdueTasks = tasks.filter(t => t.deadline && new Date(t.deadline) < new Date() && t.status !== 'completed').length;
+            container.innerHTML = `
+                <h2 class="mb-2">📈 Reports</h2>
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-value">${clients.length}</div><div class="stat-label">Total Clients</div></div>
+                    <div class="stat-card"><div class="stat-value">${processes.length}</div><div class="stat-label">Total Processes</div></div>
+                    <div class="stat-card"><div class="stat-value">${totalTasks}</div><div class="stat-label">Total Tasks</div><div class="stat-change up">${completedTasks} completed</div></div>
+                    <div class="stat-card"><div class="stat-value" style="color:${overdueTasks>0?'var(--danger)':''}">${overdueTasks}</div><div class="stat-label">Overdue Tasks</div></div>
+                    <div class="stat-card"><div class="stat-value">${documents.length}</div><div class="stat-label">Documents</div></div>
+                    <div class="stat-card"><div class="stat-value">${users.length}</div><div class="stat-label">Users</div></div>
+                </div>
+                <div class="card"><div class="card-header"><h3>Tasks by Status</h3></div><div class="card-body">
+                    <div class="grid-3">
+                        <div style="text-align:center;"><div style="font-size:28px;color:var(--warning);">${tasks.filter(t=>t.status==='pending').length}</div>Pending</div>
+                        <div style="text-align:center;"><div style="font-size:28px;color:var(--info);">${tasks.filter(t=>t.status==='in-progress').length}</div>In Progress</div>
+                        <div style="text-align:center;"><div style="font-size:28px;color:var(--success);">${completedTasks}</div>Completed</div>
+                    </div>
+                </div></div>
+            `;
+        }
+
+        // ==================== MODAL FUNCTIONS ====================
+        function openGlobalModal(title, bodyHTML) {
+            document.getElementById('globalModalTitle').textContent = title;
+            document.getElementById('globalModalBody').innerHTML = bodyHTML;
+            document.getElementById('globalModal').classList.add('open');
+        }
+        function closeGlobalModal() {
+            document.getElementById('globalModal').classList.remove('open');
+        }
+
+        // ==================== CLIENT ACTIONS ====================
+        function openAddClientModal() {
+            openGlobalModal('Add New Client', `
+                <form onsubmit="addClient(event)">
+                    <div class="form-group"><label>Full Name *</label><input type="text" id="newClientName" required></div>
+                    <div class="form-group"><label>Email</label><input type="email" id="newClientEmail"></div>
+                    <div class="form-group"><label>Phone</label><input type="text" id="newClientPhone"></div>
+                    <button type="submit" class="btn btn-primary">Add Client</button>
+                </form>
+            `);
+        }
+        function addClient(e) {
+            e.preventDefault();
+            clients.push({ id: Date.now(), name: document.getElementById('newClientName').value, email: document.getElementById('newClientEmail').value, phone: document.getElementById('newClientPhone').value, status: 'active', assignedTo: [currentUser.id], createdAt: new Date().toISOString().split('T')[0] });
+            closeGlobalModal();
+            addNotification(currentUser.id, `👥 New client added: ${clients[clients.length-1].name}`);
+            navigateTo('clients');
+        }
+        function viewClientDetail(id) {
+            const c = clients.find(c => c.id === id);
+            if (!c) return;
+            const clientProcesses = processes.filter(p => p.clientId === id);
+            openGlobalModal(c.name, `
+                <p>📧 ${c.email} | 📱 ${c.phone}</p>
+                <h4 class="mt-2">Processes (${clientProcesses.length})</h4>
+                ${clientProcesses.map(p => `<div style="padding:8px;border:1px solid var(--gray-200);border-radius:6px;margin-bottom:8px;">
+                    <strong>${p.name}</strong> - <span class="badge badge-in-progress">${p.status}</span>
+                    <div class="text-muted">Deadline: ${p.deadline}</div>
+                </div>`).join('') || '<p class="text-muted">No processes</p>'}
+            `);
+        }
+        function assignUsersToClient(clientId) {
+            const client = clients.find(c => c.id === clientId);
+            if (!client) return;
+            openGlobalModal(`Assign Users to ${client.name}`, `
+                <p>Select users to assign:</p>
+                ${users.filter(u => u.role !== 'super_admin').map(u => `
+                    <div style="padding:8px;">
+                        <label><input type="checkbox" value="${u.id}" ${client.assignedTo.includes(u.id)?'checked':''}> ${u.name} (${ROLES[u.role]?.name})</label>
+                    </div>
+                `).join('')}
+                <button class="btn btn-primary mt-2" onclick="saveClientAssignments(${clientId})">Save Assignments</button>
+            `);
+        }
+        function saveClientAssignments(clientId) {
+            const checkboxes = document.querySelectorAll('#globalModalBody input[type="checkbox"]');
+            const assignedIds = Array.from(checkboxes).filter(cb => cb.checked).map(cb => parseInt(cb.value));
+            const client = clients.find(c => c.id === clientId);
+            if (client) { client.assignedTo = assignedIds; }
+            closeGlobalModal();
+            alert('✅ Assignments saved!');
+        }
+
+        // ==================== PROCESS ACTIONS ====================
+        function openAddProcessModal() {
+            openGlobalModal('Create New Process', `
+                <form onsubmit="addProcess(event)">
+                    <div class="form-group"><label>Client *</label><select id="newProcessClient">${clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select></div>
+                    <div class="form-group"><label>Process Name *</label><input type="text" id="newProcessName" required></div>
+                    <div class="form-group"><label>Description</label><textarea id="newProcessDesc" rows="2"></textarea></div>
+                    <div class="form-group"><label>Deadline</label><input type="date" id="newProcessDeadline"></div>
+                    <div class="form-group"><label>Steps (one per line)</label><textarea id="newProcessSteps" rows="5" required></textarea></div>
+                    <button type="submit" class="btn btn-primary">Create Process</button>
+                </form>
+            `);
+        }
+        function addProcess(e) {
+            e.preventDefault();
+            const steps = document.getElementById('newProcessSteps').value.split('\n').filter(l => l.trim()).map(l => ({ name: l.trim(), completed: false, deadline: '', assignedTo: null }));
+            processes.push({
+                id: Date.now(), clientId: parseInt(document.getElementById('newProcessClient').value),
+                name: document.getElementById('newProcessName').value,
+                description: document.getElementById('newProcessDesc').value,
+                deadline: document.getElementById('newProcessDeadline').value,
+                status: 'in-progress', createdAt: new Date().toISOString().split('T')[0], steps
+            });
+            closeGlobalModal();
+            addNotification(currentUser.id, `📋 New process created: ${processes[processes.length-1].name}`);
+            navigateTo('processes');
+        }
+        function viewProcessDetail(id) {
+            const p = processes.find(p => p.id === id);
+            if (!p) return;
+            const client = clients.find(c => c.id === p.clientId);
+            const done = p.steps.filter(s => s.completed).length;
+            const progress = Math.round((done / p.steps.length) * 100);
+            openGlobalModal(p.name, `
+                <p>👤 ${client?client.name:'Unknown'} | 📅 ${p.deadline} | <span class="badge badge-in-progress">${p.status}</span></p>
+                <div class="progress-bar" style="margin:12px 0;"><div style="width:${progress}%;height:8px;background:var(--primary);border-radius:10px;"></div></div>
+                <h4>Steps</h4>
+                <div class="timeline">${p.steps.map((s,i) => `
+                    <div class="timeline-item">
+                        <div class="timeline-dot ${s.completed?'completed':''}"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-title ${s.completed?'text-success':''}">${s.name}</div>
+                            <div class="timeline-date">Deadline: ${s.deadline||'Not set'} ${s.completedBy?`| Completed by: ${users.find(u=>u.id===s.completedBy)?.name||'Unknown'}`:''}</div>
+                        </div>
+                    </div>
+                `).join('')}</div>
+                ${hasPermission('all') ? `<button class="btn btn-warning btn-sm mt-2" onclick="addProcessStep(${p.id})">+ Add Step</button>` : ''}
+            `);
+        }
+        function addProcessStep(processId) {
+            const stepName = prompt('Step name:');
+            const deadline = prompt('Deadline (YYYY-MM-DD):');
+            if (stepName) {
+                const p = processes.find(p => p.id === processId);
+                if (p) { p.steps.push({ name: stepName, completed: false, deadline: deadline || '', assignedTo: null }); }
+                closeGlobalModal();
+                viewProcessDetail(processId);
+            }
+        }
+
+        // ==================== TASK ACTIONS ====================
+        function openCreateTaskModal() {
+            openGlobalModal('Create New Task', `
+                <form onsubmit="createTask(event)">
+                    <div class="form-group"><label>Process *</label><select id="newTaskProcess">${processes.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div>
+                    <div class="form-group"><label>Task Title *</label><input type="text" id="newTaskTitle" required></div>
+                    <div class="form-group"><label>Assign To *</label><select id="newTaskAssignee">${users.filter(u=>u.role!=='super_admin').map(u=>`<option value="${u.id}">${u.name} (${ROLES[u.role]?.name})</option>`).join('')}</select></div>
+                    <div class="form-group"><label>Deadline</label><input type="date" id="newTaskDeadline"></div>
+                    <div class="form-group"><label>Response Time (hours) *</label><input type="number" id="newTaskResponseTime" value="48" required></div>
+                    <div class="form-group"><label>Priority</label><select id="newTaskPriority"><option>high</option><option selected>medium</option><option>low</option></select></div>
+                    <button type="submit" class="btn btn-primary">Create Task</button>
+                </form>
+            `);
+        }
+        function createTask(e) {
+            e.preventDefault();
+            const newTask = {
+                id: Date.now(), processId: parseInt(document.getElementById('newTaskProcess').value),
+                title: document.getElementById('newTaskTitle').value,
+                assignedTo: parseInt(document.getElementById('newTaskAssignee').value),
+                assignedBy: currentUser.id, status: 'pending',
+                deadline: document.getElementById('newTaskDeadline').value,
+                responseTimeHours: parseInt(document.getElementById('newTaskResponseTime').value),
+                priority: document.getElementById('newTaskPriority').value,
+                createdAt: new Date().toISOString().split('T')[0]
+            };
+            tasks.push(newTask);
+            addNotification(newTask.assignedTo, `📋 New task assigned: ${newTask.title} (Response: ${newTask.responseTimeHours}h)`);
+            closeGlobalModal();
+            navigateTo('tasks');
+        }
+        function updateTaskStatus(taskId, newStatus) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.status = newStatus;
+                if (newStatus === 'completed') task.completedAt = new Date().toISOString().split('T')[0];
+                addNotification(task.assignedBy, `✅ Task "${task.title}" marked as ${newStatus}`);
+            }
+            navigateTo('tasks');
+        }
+        function editTask(taskId) {
+            const t = tasks.find(t => t.id === taskId);
+            if (!t) return;
+            openGlobalModal('Edit Task', `
+                <div class="form-group"><label>Title</label><input type="text" id="editTaskTitle" value="${t.title}"></div>
+                <div class="form-group"><label>Deadline</label><input type="date" id="editTaskDeadline" value="${t.deadline}"></div>
+                <div class="form-group"><label>Response Time (hours)</label><input type="number" id="editTaskResponseTime" value="${t.responseTimeHours}"></div>
+                <button class="btn btn-primary" onclick="saveTaskEdit(${taskId})">Save</button>
+            `);
+        }
+        function saveTaskEdit(taskId) {
+            const t = tasks.find(t => t.id === taskId);
+            if (t) {
+                t.title = document.getElementById('editTaskTitle').value;
+                t.deadline = document.getElementById('editTaskDeadline').value;
+                t.responseTimeHours = parseInt(document.getElementById('editTaskResponseTime').value);
+            }
+            closeGlobalModal();
+            navigateTo('tasks');
+        }
+
+        // ==================== DOCUMENT ACTIONS ====================
+        function openUploadDocModal() {
+            openGlobalModal('Upload Document', `
+                <div class="form-group"><label>Document Name</label><input type="text" id="uploadDocName" placeholder="e.g., Passport_Scan.pdf"></div>
+                <div class="form-group"><label>Related Process</label><select id="uploadDocProcess">${processes.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div>
+                <button class="btn btn-primary" onclick="uploadDocument()">📤 Upload (Demo)</button>
+                <p class="text-muted mt-1">*Demo: Document simulated</p>
+            `);
+        }
+        function uploadDocument() {
+            documents.push({
+                id: Date.now(), processId: parseInt(document.getElementById('uploadDocProcess').value),
+                name: document.getElementById('uploadDocName').value || 'Document.pdf',
+                uploadedBy: currentUser.id, uploadedAt: new Date().toISOString().split('T')[0],
+                status: 'pending_review', size: '500 KB'
+            });
+            addNotification(1, `📄 New document uploaded by ${currentUser.name}`);
+            closeGlobalModal();
+            navigateTo('documents');
+        }
+        function approveDocument(docId) {
+            const doc = documents.find(d => d.id === docId);
+            if (doc) { doc.status = 'approved'; addNotification(doc.uploadedBy, `✅ Document "${doc.name}" approved`); }
+            navigateTo('documents');
+        }
+        function rejectDocument(docId) {
+            const doc = documents.find(d => d.id === docId);
+            if (doc) { doc.status = 'rejected'; addNotification(doc.uploadedBy, `❌ Document "${doc.name}" rejected`); }
+            navigateTo('documents');
+        }
+
+        // ==================== USER ACTIONS ====================
+        function openAddUserModal() {
+            openGlobalModal('Add New User', `
+                <form onsubmit="addUser(event)">
+                    <div class="form-group"><label>Name</label><input type="text" id="newUserName" required></div>
+                    <div class="form-group"><label>Email</label><input type="email" id="newUserEmail" required></div>
+                    <div class="form-group"><label>Role</label><select id="newUserRole">${Object.entries(ROLES).map(([k,v])=>`<option value="${k}">${v.icon} ${v.name}</option>`).join('')}</select></div>
+                    <button type="submit" class="btn btn-primary">Add User</button>
+                </form>
+            `);
+        }
+        function addUser(e) {
+            e.preventDefault();
+            users.push({ id: Date.now(), name: document.getElementById('newUserName').value, email: document.getElementById('newUserEmail').value, role: document.getElementById('newUserRole').value, password: 'password' });
+            closeGlobalModal();
+            navigateTo('users');
+        }
+        function editUserRole(userId) {
+            const user = users.find(u => u.id === userId);
+            if (!user) return;
+            openGlobalModal(`Change Role: ${user.name}`, `
+                <select id="changeRoleSelect">${Object.entries(ROLES).map(([k,v])=>`<option value="${k}" ${user.role===k?'selected':''}>${v.icon} ${v.name}</option>`).join('')}</select>
+                <button class="btn btn-primary mt-2" onclick="saveUserRole(${userId})">Save Role</button>
+            `);
+        }
+        function saveUserRole(userId) {
+            const user = users.find(u => u.id === userId);
+            if (user) { user.role = document.getElementById('changeRoleSelect').value; }
+            closeGlobalModal();
+            navigateTo('users');
+        }
+
+        // ==================== NOTIFICATIONS ====================
+        function addNotification(userId, message) {
+            notifications.unshift({ id: Date.now(), userId, message, read: false, createdAt: new Date().toISOString(), type: 'general' });
+            updateNotificationCount();
+        }
+        function updateNotificationCount() {
+            const count = notifications.filter(n => n.userId === currentUser?.id && !n.read).length;
+            document.getElementById('notifCount').textContent = count;
+            document.getElementById('notifCount').style.display = count > 0 ? 'flex' : 'none';
+        }
+        function toggleNotifications() {
+            const panel = document.getElementById('notifPanel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+            if (panel.style.display === 'block') {
+                const myNotifs = notifications.filter(n => n.userId === currentUser.id);
+                document.getElementById('notifList').innerHTML = myNotifs.length === 0 ? '<p class="text-muted">No notifications</p>' :
+                    myNotifs.slice(0,10).map(n => `<div style="padding:8px;border-bottom:1px solid var(--gray-100);cursor:pointer;${!n.read?'font-weight:600;background:var(--primary-bg);':''}" onclick="markNotifRead(${n.id})">${n.message} <span class="text-muted" style="font-size:10px;">${timeAgo(n.createdAt)}</span></div>`).join('');
+            }
+        }
+        function markNotifRead(id) {
+            const n = notifications.find(n => n.id === id);
+            if (n) n.read = true;
+            updateNotificationCount();
+            toggleNotifications();
+            toggleNotifications();
+        }
+        function markAllRead() {
+            notifications.filter(n => n.userId === currentUser.id).forEach(n => n.read = true);
+            updateNotificationCount();
+            toggleNotifications();
+            toggleNotifications();
+        }
+
+        // ==================== UTILS ====================
+        function timeAgo(dateStr) {
+            const diff = Date.now() - new Date(dateStr).getTime();
+            const mins = Math.floor(diff / 60000);
+            if (mins < 60) return `${mins}m ago`;
+            const hours = Math.floor(mins / 60);
+            if (hours < 24) return `${hours}h ago`;
+            return `${Math.floor(hours / 24)}d ago`;
+        }
+
+        // ==================== GLOBAL CLICKS ====================
+        document.addEventListener('click', function(e) {
+            if (e.target.id === 'globalModal') closeGlobalModal();
+            if (!e.target.closest('#notifPanel') && !e.target.closest('.notification-bell')) {
+                document.getElementById('notifPanel').style.display = 'none';
+            }
+        });
+
+        // ==================== INIT ====================
+        initDemoData();
+        console.log('✅ ProcessFlow Pro - Multi-User Workflow Manager Ready!');
+        console.log('👥 Roles:', Object.keys(ROLES).join(', '));
+        console.log('🔑 Quick Login: Click any role button on login page');
+    </script>
+</body>
+</html>
